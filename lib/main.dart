@@ -1,6 +1,8 @@
-import 'dart:developer';
+import 'package:flutter/foundation.dart';
 
+import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame_rive/flame_rive.dart';
@@ -8,6 +10,7 @@ import 'package:flame_rive/flame_rive.dart';
 import 'components/background.component.dart';
 import 'components/base.component.dart';
 import 'components/bird.component.dart';
+import 'components/pipe.component.dart';
 
 void main() {
   //WidgetsFlutterBinding.ensureInitialized();
@@ -15,20 +18,39 @@ void main() {
   runApp(GameWidget(game: MyGame()));
 }
 
-T? _ambiguate<T>(T? value) => value;
-
 class MyGame extends FlameGame with HasTappables {
   late double bgHeight;
   late BirdComponent birdComponent;
   late BackgroundComponent bgComponent;
   late BaseComponent baseComponent;
+  double time = 2.4;
+  late double timeToAdd = 0;
+  late double screenWidth;
+  late TextComponent scoreTextComponent;
   var state = 'ready';
+  var score = 0;
 
+  @override
   Future<void> onLoad() async {
     await super.onLoad();
-    final screenWidth = size[0];
+    screenWidth = size[0];
     final screenHeight = size[1];
+
     bgHeight = screenHeight - (screenWidth * 162 / 500);
+
+    scoreTextComponent = TextComponent(
+      text: '$score',
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          fontSize: 32,
+          color: Color.fromRGBO(255, 255, 255, 1),
+        ),
+      ),
+      anchor: Anchor.center,
+      position: Vector2(screenWidth / 2, 50),
+    );
+    scoreTextComponent.priority = 4;
+    add(scoreTextComponent);
 
     Artboard birdArtBoard =
         await loadArtboard(RiveFile.asset('assets/bird.riv'));
@@ -45,19 +67,23 @@ class MyGame extends FlameGame with HasTappables {
     bgArtBoard.addController(bgController);
     add(bgComponent);
 
+    birdComponent = BirdComponent(birdArtBoard: birdArtBoard);
+    birdComponent.priority = 3;
+
     baseComponent = BaseComponent(
         artBoard: baseArtBoard,
         screenHeight: screenHeight,
         screenWidth: screenWidth);
+    baseComponent.priority = 2;
     add(baseComponent);
 
-    birdComponent = BirdComponent(birdArtBoard: birdArtBoard);
     add(birdComponent);
   }
 
   @override
   void update(double dt) {
     super.update(dt);
+    scoreTextComponent.text = '$score';
     switch (state) {
       case 'ready':
         {
@@ -69,11 +95,18 @@ class MyGame extends FlameGame with HasTappables {
           birdComponent.x = 50;
           birdComponent.y = bgHeight / 2;
           birdComponent.v = -bgHeight / 100;
-
+          timeToAdd = 0;
+          score = 0;
           break;
         }
       case 'playing':
         {
+          timeToAdd += dt;
+          if (time < timeToAdd) {
+            createPipe(screenWidth, bgHeight);
+            timeToAdd = 0;
+          }
+
           birdComponent.a = bgHeight / 33;
           birdComponent.birdController.isActive = true;
           baseComponent.baseController.isActive = true;
@@ -88,8 +121,7 @@ class MyGame extends FlameGame with HasTappables {
           birdComponent.birdController.isActive = false;
           baseComponent.baseController.isActive = false;
           bgComponent.backgroundController.isActive = false;
-          birdComponent.a = 0;
-          birdComponent.v = 0;
+          birdComponent.a = bgHeight / 33;
           break;
         }
     }
@@ -102,6 +134,7 @@ class MyGame extends FlameGame with HasTappables {
       case 'ready':
         {
           state = 'playing';
+          createPipe(screenWidth, bgHeight);
           break;
         }
       case 'playing':
@@ -115,5 +148,21 @@ class MyGame extends FlameGame with HasTappables {
           break;
         }
     }
+  }
+
+  void createPipe(double screenWidth, double bgHieght) async {
+    Random rnd;
+    double min = 250;
+    double max = bgHieght - 250;
+    rnd = new Random();
+    double r = min + rnd.nextDouble() * (max - min);
+
+    PipeComponent pipeComponent = PipeComponent(
+      pipeSprite: await loadSprite('NicePng_pipes-png_388476.png'),
+      screenWidth: screenWidth,
+      pipeY: r,
+      bird: birdComponent,
+    );
+    add(pipeComponent);
   }
 }

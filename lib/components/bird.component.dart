@@ -47,8 +47,8 @@ class BirdComponent extends RiveComponent with HasGameRef {
       y = bgHeight;
     }
 
-    if (y < 0) {
-      y = 0;
+    if (y < 27) {
+      y = 27;
     }
   }
 }

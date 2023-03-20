@@ -11,6 +11,8 @@ class PipeComponent extends Component with HasGameRef<MyGame> {
   late double screenWidth;
   late BirdComponent bird;
   late double widthPipe;
+  var increase = false;
+
   bool addPoint = false;
   PipeComponent({
     required this.pipeSprite,
@@ -22,6 +24,7 @@ class PipeComponent extends Component with HasGameRef<MyGame> {
   @override
   Future<void> onLoad() async {
     super.onLoad();
+
     widthPipe = screenWidth / 5;
     var heightPipe = widthPipe * 147 / 22;
     pipeX = screenWidth;
@@ -42,29 +45,32 @@ class PipeComponent extends Component with HasGameRef<MyGame> {
 
   @override
   void update(double dt) {
-    // TODO: implement update
     if (gameRef.state == 'ready') {
       gameRef.remove(this);
+      gameRef.birdComponent.pipeComponent = null;
     }
 
     if (gameRef.state == 'playing') {
-      pipeX -= 2;
+      pipeX -= gameRef.speed;
       pipeUp.x = pipeX;
       pipeDown.x = pipeX;
 
-      if ((gameRef.birdComponent.x + gameRef.birdComponent.width > pipeX &&
-              gameRef.birdComponent.y - gameRef.birdComponent.height <
-                  pipeY - 70 &&
-              gameRef.birdComponent.x < pipeX + widthPipe) ||
-          (gameRef.birdComponent.x + gameRef.birdComponent.width > pipeX &&
-              gameRef.birdComponent.y > pipeY + 70 &&
-              gameRef.birdComponent.x < pipeX + widthPipe)) {
-        gameRef.state = 'gameOver';
+      if (gameRef.birdComponent.x + gameRef.birdComponent.width > pipeX &&
+          gameRef.birdComponent.x < pipeX + widthPipe) {
+        gameRef.birdComponent.pipeComponent = this;
       }
+      if (gameRef.birdComponent.x >= pipeX + widthPipe) {
+        gameRef.birdComponent.pipeComponent = null;
+      }
+
       if (gameRef.birdComponent.x > pipeX + widthPipe && !addPoint) {
-        print(gameRef.score);
         gameRef.score += 1;
         addPoint = true;
+        if (gameRef.score % 5 == 0 &&
+            gameRef.score != 0 &&
+            gameRef.increaseSpeed == false) {
+          gameRef.increaseSpeed = true;
+        }
       }
       if (pipeX < -widthPipe) {
         gameRef.remove(this);

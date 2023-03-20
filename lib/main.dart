@@ -27,6 +27,8 @@ class MyGame extends FlameGame with HasTappables {
   late double timeToAdd = 0;
   late double screenWidth;
   late TextComponent scoreTextComponent;
+  late double speed;
+  var increaseSpeed = false;
   var state = 'ready';
   var score = 0;
 
@@ -37,7 +39,7 @@ class MyGame extends FlameGame with HasTappables {
     final screenHeight = size[1];
 
     bgHeight = screenHeight - (screenWidth * 162 / 500);
-
+    speed = screenWidth / 210;
     scoreTextComponent = TextComponent(
       text: '$score',
       textRenderer: TextPaint(
@@ -90,17 +92,22 @@ class MyGame extends FlameGame with HasTappables {
           birdComponent.birdController.isActive = true;
           baseComponent.baseController.isActive = true;
           bgComponent.backgroundController.isActive = true;
-          birdComponent.a = 0;
-          birdComponent.v = 0;
-          birdComponent.x = 50;
-          birdComponent.y = bgHeight / 2;
-          birdComponent.v = -bgHeight / 100;
           timeToAdd = 0;
           score = 0;
+          birdComponent.x = 80;
+          time = 2.4;
+          speed = screenWidth / 210;
           break;
         }
       case 'playing':
         {
+          print(speed);
+          if (increaseSpeed) {
+            speed += speed * 10 / 100;
+            time -= time * 10 / 100;
+            increaseSpeed = false;
+          }
+
           timeToAdd += dt;
           if (time < timeToAdd) {
             createPipe(screenWidth, bgHeight);

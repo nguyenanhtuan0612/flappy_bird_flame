@@ -97,8 +97,6 @@ class MyGame extends FlameGame with HasTappables {
           birdComponent.x = 80;
           time = 2.4;
           speed = 117 * dt;
-          print(speed);
-          print('${117 * dt}');
           break;
         }
       case 'playing':

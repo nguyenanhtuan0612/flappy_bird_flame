@@ -127,7 +127,6 @@ class MyGame extends FlameGame with HasTappables {
           birdComponent.birdController.isActive = false;
           baseComponent.baseController.isActive = false;
           bgComponent.backgroundController.isActive = false;
-          birdComponent.a = 1345 * dt;
           break;
         }
     }

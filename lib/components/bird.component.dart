@@ -19,11 +19,10 @@ class BirdComponent extends RiveComponent with HasGameRef<MyGame> {
         );
 
   late double bgHeight;
-  late double a = 22;
-  late double v = -7;
+  late double a = 0;
+  late double v = 0;
   late double tempY = y;
   late double vx = 0;
-  late double ax = 0;
 
   @override
   Future<void> onLoad() async {
@@ -42,7 +41,6 @@ class BirdComponent extends RiveComponent with HasGameRef<MyGame> {
     super.update(dt);
     if (gameRef.state == 'ready') {
       a = 0;
-      v = 0;
       x = 80;
       vx = 0;
       y = bgHeight / 2;
@@ -60,12 +58,10 @@ class BirdComponent extends RiveComponent with HasGameRef<MyGame> {
       if (tempY > bgHeight) {
         y = bgHeight;
       }
-      vx = vx + (ax);
       x += vx;
 
       if (x >= 80) {
         vx = 0;
-        ax = 0;
       }
 
       if (x <= 0) {

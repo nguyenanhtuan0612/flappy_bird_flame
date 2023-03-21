@@ -96,12 +96,13 @@ class MyGame extends FlameGame with HasTappables {
           score = 0;
           birdComponent.x = 80;
           time = 2.4;
-          speed = screenWidth / 210;
+          speed = 117 * dt;
+          print(speed);
+          print('${117 * dt}');
           break;
         }
       case 'playing':
         {
-          print(speed);
           if (increaseSpeed) {
             speed += speed * 10 / 100;
             time -= time * 10 / 100;
@@ -114,7 +115,7 @@ class MyGame extends FlameGame with HasTappables {
             timeToAdd = 0;
           }
 
-          birdComponent.a = bgHeight / 33;
+          birdComponent.a = 1345 * dt;
           birdComponent.birdController.isActive = true;
           baseComponent.baseController.isActive = true;
           bgComponent.backgroundController.isActive = true;
@@ -128,7 +129,7 @@ class MyGame extends FlameGame with HasTappables {
           birdComponent.birdController.isActive = false;
           baseComponent.baseController.isActive = false;
           bgComponent.backgroundController.isActive = false;
-          birdComponent.a = bgHeight / 33;
+          birdComponent.a = 1345 * dt;
           break;
         }
     }
@@ -146,7 +147,7 @@ class MyGame extends FlameGame with HasTappables {
         }
       case 'playing':
         {
-          birdComponent.v = -bgHeight / 100;
+          birdComponent.v = -7.5;
           break;
         }
       case 'gameOver':

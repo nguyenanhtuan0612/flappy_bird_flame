@@ -22,6 +22,7 @@ class BirdComponent extends RiveComponent with HasGameRef<MyGame> {
   late double a = 0;
   late double v = 0;
   late double tempY = y;
+  late double tempX = x;
   late double vx = 0;
 
   @override
@@ -53,13 +54,16 @@ class BirdComponent extends RiveComponent with HasGameRef<MyGame> {
       double oldY = y;
       tempY = y;
       tempY += v;
-
       y += v;
       if (tempY > bgHeight) {
         y = bgHeight;
       }
-      x += vx;
+      if (tempY <= 27) {
+        y = 27;
+        v = 0;
+      }
 
+      x += vx;
       if (x >= 80) {
         vx = 0;
       }
@@ -84,7 +88,11 @@ class BirdComponent extends RiveComponent with HasGameRef<MyGame> {
             y = pipeComponent!.pipeY + 70;
             v = -v * 8 / 10;
           } else {
-            vx = -5;
+            vx = -300 * dt;
+            tempX += vx;
+            if (tempX >= pipeComponent!.pipeX - width) {
+              x = pipeComponent!.pipeX - width;
+            }
           }
         }
         // Trên
@@ -96,15 +104,16 @@ class BirdComponent extends RiveComponent with HasGameRef<MyGame> {
             y = pipeComponent!.pipeY - 70 + height;
             v = -v * 8 / 10;
           } else {
-            vx = -5;
+            vx = -300 * dt;
+            tempX = x;
+            tempX += vx;
+            if (tempX >= pipeComponent!.pipeX - width) {
+              x = pipeComponent!.pipeX - width;
+            }
           }
         }
 
         return;
-      }
-
-      if (y < 27) {
-        y = 27;
       }
     }
   }

@@ -65,6 +65,9 @@ class PipeComponent extends Component with HasGameRef<MyGame> {
 
       if (gameRef.birdComponent.x > pipeX + widthPipe && !addPoint) {
         gameRef.score += 1;
+        if (gameRef.highScore < gameRef.score) {
+          gameRef.highScore = gameRef.score;
+        }
         addPoint = true;
         if (gameRef.score % 5 == 0 &&
             gameRef.score != 0 &&

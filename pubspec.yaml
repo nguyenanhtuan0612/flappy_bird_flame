@@ -11,6 +11,7 @@ dependencies:
   flame_rive: ^1.6.0
   flutter:
     sdk: flutter
+  shared_preferences: ^2.0.20
 
 dev_dependencies:
   flutter_test:
@@ -22,3 +23,7 @@ flutter:
   assets:
     - assets/
     - assets/images/
+  fonts:
+    - family: FlappyBird
+      fonts:
+        - asset: fonts/flappy-font.ttf

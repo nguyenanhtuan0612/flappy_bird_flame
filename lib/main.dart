@@ -1,3 +1,4 @@
+import 'package:flappy_bird_flame/components/message.component.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flame/components.dart';
@@ -6,6 +7,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame_rive/flame_rive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'components/background.component.dart';
 import 'components/base.component.dart';
@@ -28,6 +30,10 @@ class MyGame extends FlameGame with HasTappables {
   late double screenWidth;
   late TextComponent scoreTextComponent;
   late double speed;
+  late double deltaT;
+  late SharedPreferences prefs;
+  late MessageComponent msgComponent;
+  late int highScore;
   var increaseSpeed = false;
   var state = 'ready';
   var score = 0;
@@ -35,6 +41,12 @@ class MyGame extends FlameGame with HasTappables {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+
+    // Obtain shared preferences.
+    prefs = await SharedPreferences.getInstance();
+    final int? best = prefs.getInt('highScore');
+    highScore = best ?? 0;
+
     screenWidth = size[0];
     final screenHeight = size[1];
 
@@ -44,6 +56,7 @@ class MyGame extends FlameGame with HasTappables {
       text: '$score',
       textRenderer: TextPaint(
         style: const TextStyle(
+          fontFamily: 'FlappyBird',
           fontSize: 32,
           color: Color.fromRGBO(255, 255, 255, 1),
         ),
@@ -62,6 +75,12 @@ class MyGame extends FlameGame with HasTappables {
 
     Artboard baseArtBoard =
         await loadArtboard(RiveFile.asset('assets/base.riv'));
+
+    msgComponent = MessageComponent(
+        spriteReady: await loadSprite('ready.png'),
+        screenWidth: screenWidth,
+        screenHeight: screenHeight);
+    add(msgComponent);
 
     bgComponent = BackgroundComponent(
         artBoard: bgArtBoard, width: screenWidth, height: bgHeight + 1);
@@ -85,6 +104,7 @@ class MyGame extends FlameGame with HasTappables {
   @override
   void update(double dt) {
     super.update(dt);
+    deltaT = dt;
     scoreTextComponent.text = '$score';
     switch (state) {
       case 'ready':
@@ -117,13 +137,16 @@ class MyGame extends FlameGame with HasTappables {
           birdComponent.birdController.isActive = true;
           baseComponent.baseController.isActive = true;
           bgComponent.backgroundController.isActive = true;
+
           if (birdComponent.y >= bgHeight) {
             state = 'gameOver';
           }
+
           break;
         }
       case 'gameOver':
         {
+          addBestScore();
           birdComponent.birdController.isActive = false;
           baseComponent.baseController.isActive = false;
           bgComponent.backgroundController.isActive = false;
@@ -144,7 +167,7 @@ class MyGame extends FlameGame with HasTappables {
         }
       case 'playing':
         {
-          birdComponent.v = -7.5;
+          birdComponent.v = -448 * deltaT;
           break;
         }
       case 'gameOver':
@@ -155,11 +178,15 @@ class MyGame extends FlameGame with HasTappables {
     }
   }
 
+  void addBestScore() async {
+    await prefs.setInt('highScore', score);
+  }
+
   void createPipe(double screenWidth, double bgHieght) async {
     Random rnd;
     double min = 250;
     double max = bgHieght - 250;
-    rnd = new Random();
+    rnd = Random();
     double r = min + rnd.nextDouble() * (max - min);
 
     PipeComponent pipeComponent = PipeComponent(
